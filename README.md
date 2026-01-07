@@ -11,52 +11,51 @@
 每个配置文件应严格遵循以下结构，确保变量和函数命名规范：
 
 ```bash
-# --- 基础信息 ---
-local app_id="和文件名一致，用于安装状态检测"
-local app_name="应用显示名称"
-local app_text="一句话简介，说明应用用途"
-local app_url="示例官网: https://github.com/kejilion/sh/edit/main/apps"
-local docker_name="容器启动后的名称"
-local docker_port="默认访问端口"
-local app_size="占用空间大小 (1-10)设置10代表要求10G空间才能装"
+# --- 基础信息 / Basic Information ---
+local app_id="My File Name" # 和文件名一致，用于安装状态检测 / Same as the filename, used for installation status detection.
+local app_name="My App Name" # 应用显示名称
+local app_text="A brief description" # 一句话简介，说明应用用途
+local app_url="https://github.com/..." # 官网链接 / Official URL
+local docker_name="myapp_container" # 容器启动后的名称 / Container Name
+local docker_port="8080" # 默认访问端口 / Default Port
+local app_size="1" # 占用空间大小(GB) / Size in GB required (1-10)
 
-# --- 核心逻辑 ---
-
-# 1. 安装函数
+# --- 核心逻辑 / Core Logic ---
 docker_app_install() {
-    # 必须在 /home/docker/ 下创建应用目录
+    # 必须在 /home/docker/ 下创建应用目录 / Directory creation (Mandatory)
     mkdir -p /home/docker/myapp && cd /home/docker/myapp
-    
-    # 下载并配置 compose 文件
-    curl -L -o docker-compose.yml "${gh_proxy}[raw.githubusercontent.com/](https://raw.githubusercontent.com/)..."
-    
-    # 端口处理（使用变量以便用户自定义）
+    # 下载并配置 compose 文件 / Download compose file
+    # 务必使用 gh_proxy 变量 / Use gh_proxy for China access
+    curl -L -o docker-compose.yml "${gh_proxy}https://raw.githubusercontent.com/..."
+    # 端口处理（使用变量以便用户自定义）/ Port configuration (Customizable)
     sed -i "s/8080:8080/${docker_port}:8080/g" docker-compose.yml
-    
-    # 启动容器
+    # 启动容器 / Start container
     docker compose up -d
-    
-    echo "安装完成"
+    echo "安装完成 / Install Complete"
+
+    # 显示访问地址的函数保留即可 / Show the function that is reserved
+    check_docker_app_ip
 }
 
-# 2. 更新函数
 docker_app_update() {
     cd /home/docker/myapp
     docker compose pull
     docker compose up -d
-    echo "更新完成"
+    echo "更新完成 / Update Complete"
 }
 
-# 3. 卸载函数
 docker_app_uninstall() {
     cd /home/docker/myapp
+    # 停止并删除镜像 / Stop and remove images
     docker compose down --rmi all
+    # 彻底物理删除目录 / Clean up directory
     rm -rf /home/docker/myapp
-    echo "卸载完成"
+    echo "卸载完成 / Uninstall Complete"
 }
 
-# --- 结尾必须包含此行以完成注册 ---
+# --- 注册 (必须包含) / Registration (Mandatory) ---
 docker_app_plus
+
 
 
 ```
